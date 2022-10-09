@@ -1,0 +1,60 @@
+
+resources:
+  containers:
+  - container: mlops
+    image: mcr.microsoft.com/mlops/python:latest
+
+pr: none
+trigger:
+  branches:
+    include:
+    - main
+
+variables:
+- group: xmmdevops-variable-group-non-prod
+- group: xmmdevops-variable-group-qa
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+- stage: 'RunPipline'
+  variables:
+  - group: xmmdevops-variable-group-qa
+  displayName: 'Register Model QA'
+  jobs:
+  - job: "RegisterQA"
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '3.8'
+          addToPath: true
+      - script: |
+          python -m pip install --upgrade pip
+          pip install jupyter
+          pip install nbconvert
+          pip install --upgrade azureml-core
+          pip install --upgrade azureml-sdk[automl]
+            
+      - task: AzureCLI@1
+        env:
+          tenantId: $(tenantId)
+          servicePrincipalId: $(servicePrincipalId)
+          servicePrincipalPassword: $(servicePrincipalPassword)
+          wsName: $(wsName)
+          subscriptionId: $(subscriptionId)
+          resourceGroup: $(resourceGroup)
+          location: $(location)
+        inputs:
+          azureSubscription: dev-aml-workspace-connection
+          scriptLocation: inlineScript
+          workingDirectory: '$(Build.SourcesDirectory)'
+          inlineScript: |
+            echo "files:"
+            ls
+            az version
+            az extension add -n ml -y
+            az configure --defaults group=$(resourceGroup) workspace=$(wsName) location=$(location)
+            az ml job create -s -f src/pipeline/AzureDevOpsPipeline.yml
+        displayName: 'Training Pipeline'
+        

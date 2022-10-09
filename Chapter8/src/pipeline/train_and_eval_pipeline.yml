@@ -1,0 +1,50 @@
+
+$schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
+type: pipeline
+display_name: Training_and_eval_pipeline
+experiment_name: Training_and_eval_pipeline
+compute: azureml:cpu-cluster
+
+jobs:
+  prep_job:
+    type: command
+    code: ../prep
+    command: >-
+      python prep.py 
+      --raw_data ${{inputs.raw_data}}
+      --prep_data ${{outputs.prep_data}}
+    inputs:
+      raw_data:
+        type: uri_folder
+        path: azureml:titanic_raw:1
+        mode: ro_mount
+    outputs:
+      prep_data:
+        type: uri_file
+        path: azureml://datastores/workspaceblobstore/paths/titanic_prep_data/titanic_prepped.csv
+        mode: rw_mount
+    environment:
+      conda_file: ../conda-yamls/job_env.yml
+      image: mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest
+    description: Feature Engineering
+        
+  train_job:
+    type: command
+    inputs:
+      training_data: ${{parent.jobs.prep_job.outputs.prep_data}}
+      randomstate: 0
+    outputs:
+      model_output: 
+      test_data: 
+        mode: upload
+    code: ../train
+    environment:
+      conda_file: ../conda-yamls/job_env.yml
+      image: mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest
+    compute: azureml:cpu-cluster
+    command: >-
+      python train.py 
+      --training_data ${{inputs.training_data}} 
+      --randomstate ${{inputs.randomstate}} 
+      --test_data ${{outputs.test_data}} 
+      --model_output ${{outputs.model_output}}
