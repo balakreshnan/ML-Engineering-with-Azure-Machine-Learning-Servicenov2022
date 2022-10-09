@@ -24,7 +24,7 @@ jobs:
         path: azureml://datastores/workspaceblobstore/paths/titanic_prep_data/titanic_prepped.csv
         mode: rw_mount
     environment:
-      conda_file: ../conda-yamls/job_env.yml
+      conda_file: ../conda-yamls/pipeline_env.yml
       image: mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest
     description: Feature Engineering
         
