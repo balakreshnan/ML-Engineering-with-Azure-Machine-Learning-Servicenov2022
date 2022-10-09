@@ -23,7 +23,7 @@ stages:
   - group: xmmdevops-variable-group-qa
   displayName: 'Register Model QA'
   jobs:
-  - job: "Train Model"
+  - job: "Train_Model"
     steps:
       - task: UsePythonVersion@0
         inputs:
