@@ -23,7 +23,7 @@ stages:
   - group: xmmdevops-variable-group-qa
   displayName: 'Register Model QA'
   jobs:
-  - job: "RegisterQA"
+  - job: "Train Model"
     steps:
       - task: UsePythonVersion@0
         inputs:
@@ -55,6 +55,6 @@ stages:
             az version
             az extension add -n ml -y
             az configure --defaults group=$(resourceGroup) workspace=$(wsName) location=$(location)
-            az ml job create -s -f src/pipeline/AzureDevOpsPipeline.yml
+            #az ml job create -s -f src/pipeline/train_and_eval_pipeline.yml
         displayName: 'Training Pipeline'
         
