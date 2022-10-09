@@ -28,23 +28,23 @@ jobs:
       image: mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest
     description: Feature Engineering
         
-  train_job:
-    type: command
-    inputs:
-      training_data: ${{parent.jobs.prep_job.outputs.prep_data}}
-      randomstate: 0
-    outputs:
-      model_output: 
-      test_data: 
-        mode: upload
-    code: ../train
-    environment:
-      conda_file: ../conda-yamls/job_env.yml
-      image: mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest
-    compute: azureml:cpu-cluster
-    command: >-
-      python train.py 
-      --training_data ${{inputs.training_data}} 
-      --randomstate ${{inputs.randomstate}} 
-      --test_data ${{outputs.test_data}} 
-      --model_output ${{outputs.model_output}}
+#   train_job:
+#     type: command
+#     inputs:
+#       training_data: ${{parent.jobs.prep_job.outputs.prep_data}}
+#       randomstate: 0
+#     outputs:
+#       model_output: 
+#       test_data: 
+#         mode: upload
+#     code: ../train
+#     environment:
+#       conda_file: ../conda-yamls/job_env.yml
+#       image: mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest
+#     compute: azureml:cpu-cluster
+#     command: >-
+#       python train.py 
+#       --training_data ${{inputs.training_data}} 
+#       --randomstate ${{inputs.randomstate}} 
+#       --test_data ${{outputs.test_data}} 
+#       --model_output ${{outputs.model_output}}
