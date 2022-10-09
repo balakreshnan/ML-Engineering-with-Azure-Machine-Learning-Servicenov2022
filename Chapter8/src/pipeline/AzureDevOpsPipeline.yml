@@ -55,6 +55,6 @@ stages:
             az version
             az extension add -n ml -y
             az configure --defaults group=$(resourceGroup) workspace=$(wsName) location=$(location)
-            az ml job create -s -f src/pipeline/AzureDevOpsPipeline.yml
+            az ml job create --file Chapter8/src/pipeline/train_and_eval_pipeline.yml --resource-group aml-workspace-rg --workspace-name aml-workspace --stream
         displayName: 'Training Pipeline'
         
