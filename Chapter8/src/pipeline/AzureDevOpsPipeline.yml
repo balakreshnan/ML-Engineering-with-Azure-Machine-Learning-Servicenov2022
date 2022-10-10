@@ -130,3 +130,34 @@ stages:
             echo $(setversion.modelversion)
             echo $(setfinalversion.finalmodelversion)
             
+- stage: 'DeployModel'
+  dependsOn: RunPipline
+  condition: eq(dependencies.RunPipline.outputs['TrainingPipeline.setversion.modelversion'], dependencies.RunPipline.outputs['TrainingPipeline.setversion.modelversion'])
+  jobs:
+  - job: "DeployModel"
+    steps:
+      - task: AzureCLI@1
+        env:
+          tenantId: $(tenantId)
+          servicePrincipalId: $(servicePrincipalId)
+          servicePrincipalPassword: $(servicePrincipalPassword)
+          wsName: $(wsName)
+          subscriptionId: $(subscriptionId)
+          resourceGroup: $(resourceGroup)
+          location: $(location)
+        inputs:
+          azureSubscription: dev-aml-workspace-connection
+          scriptLocation: inlineScript
+          workingDirectory: '$(Build.SourcesDirectory)'
+          inlineScript: |
+            echo "made it:"
+            echo dependencies.RunPipline.outputs['TrainingPipeline.setversion.modelversion']
+            ls
+            az version
+            az extension add -n ml -y
+            az version
+            az configure --defaults group=$(resourceGroup) workspace=$(wsName) location=$(location)
+            az ml model list -w aml-workspace -g aml-workspace-rg  -n mmchapter8titanic --query "[0].version" -o tsv
+            echo "##vso[task.setvariable variable=modelversion;isOutput=true]$(az ml model list -w aml-workspace -g aml-workspace-rg  -n mmchapter8titanic --query '[0].version
+            
+    
