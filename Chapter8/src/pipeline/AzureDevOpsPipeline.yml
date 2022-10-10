@@ -77,7 +77,6 @@ stages:
             echo 'modelversion'
             echo $(setversion.modelversion)     
             
-            
       - task: AzureCLI@1
         env:
           tenantId: $(tenantId)
@@ -96,4 +95,38 @@ stages:
             run_id=$(az ml job create --file Chapter8/src/pipeline/train_and_eval_pipeline.yml --stream --query name -o tsv)
             echo run_id
         displayName: 'Training Pipeline'
+            
+      - task: AzureCLI@1
+        env:
+          tenantId: $(tenantId)
+          servicePrincipalId: $(servicePrincipalId)
+          servicePrincipalPassword: $(servicePrincipalPassword)
+          wsName: $(wsName)
+          subscriptionId: $(subscriptionId)
+          resourceGroup: $(resourceGroup)
+          location: $(location)
+        inputs:
+          azureSubscription: dev-aml-workspace-connection
+          scriptLocation: inlineScript
+          workingDirectory: '$(Build.SourcesDirectory)'
+          inlineScript: |
+            echo "files:"
+            ls
+            az version
+            az extension add -n ml -y
+            az version
+            az configure --defaults group=$(resourceGroup) workspace=$(wsName) location=$(location)
+            az ml model list -w aml-workspace -g aml-workspace-rg  -n mmchapter8titanic --query "[0].version" -o tsv
+            echo "##vso[task.setvariable variable=finalmodelversion;isOutput=true]$(az ml model list -w aml-workspace -g aml-workspace-rg  -n mmchapter8titanic --query '[0].version' -o tsv)"
+        name: 'setfinalversion'
+        displayName: 'Get Final Model Version'
+            
+      - task: Bash@3
+        inputs:
+          workingDirectory: '$(Build.SourcesDirectory)'
+          targetType: 'inline'
+          script: |
+            echo 'modelversion'
+            echo $(setversion.modelversion)
+            echo $(setfinalversion.finalmodelversion)
             
