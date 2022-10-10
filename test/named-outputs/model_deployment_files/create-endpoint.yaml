@@ -1,0 +1,3 @@
+$schema: https://azuremlschemas.azureedge.net/latest/managedOnlineEndpoint.schema.json 
+name: Chapter8titanicendpoint
+auth_mode: key 

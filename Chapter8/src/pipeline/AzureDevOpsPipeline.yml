@@ -43,14 +43,7 @@ stages:
           pip install --upgrade azureml-core
           pip install --upgrade azureml-sdk[automl]
       
-      - task: Bash@3
-        inputs:
-          workingDirectory: $(Build.SourcesDirectory)
-          targetType: 'inline'
-          script: |
-            echo "##vso[task.setvariable variable=initalmodelversion;isOutput=true]$(az ml model list -w aml-workspace -g aml-workspace-rg  -n mmchapter8titanic --query "[0].version" -o tsv)"
-            echo $(initalmodelversion)
-            
+
       - task: AzureCLI@1
         env:
           tenantId: $(tenantId)
@@ -70,6 +63,25 @@ stages:
             az version
             az extension add -n ml -y
             az configure --defaults group=$(resourceGroup) workspace=$(wsName) location=$(location)
+            echo "##vso[task.setvariable variable=initalmodelversion;isOutput=true]$(az ml model list -w aml-workspace -g aml-workspace-rg  -n mmchapter8titanic --query "[0].version" -o tsv)"
+            echo $(initalmodelversion)
+        displayName: 'Get Initial Model Version'
+            
+            
+      - task: AzureCLI@1
+        env:
+          tenantId: $(tenantId)
+          servicePrincipalId: $(servicePrincipalId)
+          servicePrincipalPassword: $(servicePrincipalPassword)
+          wsName: $(wsName)
+          subscriptionId: $(subscriptionId)
+          resourceGroup: $(resourceGroup)
+          location: $(location)
+        inputs:
+          azureSubscription: dev-aml-workspace-connection
+          scriptLocation: inlineScript
+          workingDirectory: '$(Build.SourcesDirectory)'
+          inlineScript: |
             run_id=$(az ml job create --file Chapter8/src/pipeline/train_and_eval_pipeline.yml --stream --query name -o tsv)
             echo run_id
         displayName: 'Training Pipeline'
