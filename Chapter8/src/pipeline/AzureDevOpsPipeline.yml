@@ -65,6 +65,11 @@ stages:
             az configure --defaults group=$(resourceGroup) workspace=$(wsName) location=$(location)
             echo "##vso[task.setvariable variable=initalmodelversion;isOutput=true]$(az ml model list -w aml-workspace -g aml-workspace-rg  -n mmchapter8titanic --query "[0].version" -o tsv)"
             echo $(initalmodelversion)
+            $val = $(az ml model list -w aml-workspace -g aml-workspace-rg  -n mmchapter8titanic --query "[0].version" -o tsv)
+            echo $val
+            $initalmodelversion = $val
+            echo $initalmodelversion
+            
         displayName: 'Get Initial Model Version'
             
             
@@ -82,6 +87,7 @@ stages:
           scriptLocation: inlineScript
           workingDirectory: '$(Build.SourcesDirectory)'
           inlineScript: |
+            echo $initalmodelversion
             run_id=$(az ml job create --file Chapter8/src/pipeline/train_and_eval_pipeline.yml --stream --query name -o tsv)
             echo run_id
         displayName: 'Training Pipeline'
