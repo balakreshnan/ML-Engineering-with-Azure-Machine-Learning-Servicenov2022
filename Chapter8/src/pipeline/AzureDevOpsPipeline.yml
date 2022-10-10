@@ -64,8 +64,8 @@ stages:
             az extension add -n ml -y
             az version
             az configure --defaults group=$(resourceGroup) workspace=$(wsName) location=$(location)
-            
-            modelversion = $(az ml model list -n mmchapter8titanic --query "[0].version" -o tsv)
+            az ml model list -w aml-workspace -g aml-workspace-rg  -n mmchapter8titanic --query "[0].version" -o tsv
+            modelversion = $(az ml model list -w aml-workspace -g aml-workspace-rg  -n mmchapter8titanic --query "[0].version" -o tsv)
             echo "##vso[task.setvariable variable=modelversion]$modelversion"
             echo "Result: $(modelversion)"
 
