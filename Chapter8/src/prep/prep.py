@@ -11,8 +11,9 @@ args = parser.parse_args()
 print(args.raw_data)
 print(args.prep_data)
 
+#/mnt/azureml/cr/j/f91687126d3744229274c6ecbe85b820/cap/data-capability/wd/INPUT_raw_data
 
-df = pd.read_csv(args.raw_data)
+df = pd.read_csv(args.raw_data + '/titanic.csv')
 
 df['Age'] = df.groupby(['Pclass', 'Sex'])['Age'].apply(lambda x: x.fillna(x.median()))
 df['Sex']= df['Sex'].apply(lambda x: x[0] if pd.notnull(x) else 'X')

@@ -27,24 +27,48 @@ jobs:
       conda_file: ../conda-yamls/pipeline_env.yml
       image: mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest
     description: Feature Engineering
-        
-#   train_job:
-#     type: command
-#     inputs:
-#       training_data: ${{parent.jobs.prep_job.outputs.prep_data}}
-#       randomstate: 0
-#     outputs:
-#       model_output: 
-#       test_data: 
-#         mode: upload
-#     code: ../train
-#     environment:
-#       conda_file: ../conda-yamls/job_env.yml
-#       image: mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest
-#     compute: azureml:cpu-cluster
-#     command: >-
-#       python train.py 
-#       --training_data ${{inputs.training_data}} 
-#       --randomstate ${{inputs.randomstate}} 
-#       --test_data ${{outputs.test_data}} 
-#       --model_output ${{outputs.model_output}}
+    
+  train_job:
+    type: command
+    inputs:
+      prep_data: ${{parent.jobs.prep_job.outputs.prep_data}}
+    outputs:
+      model_output:
+        type: uri_folder
+        path: azureml://datastores/workspaceblobstore/paths/titanic_model_data/
+        mode: rw_mount
+      test_data: 
+        type: uri_folder
+        path: azureml://datastores/workspaceblobstore/paths/titanic_test_data/
+        mode: rw_mount
+    code: ../train
+    environment:
+      conda_file: ../conda-yamls/pipeline_env.yml
+      image: mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest
+    compute: azureml:cpu-cluster
+    command: >-
+      python train.py 
+      --prep_data ${{inputs.prep_data}} 
+      --model_output ${{outputs.model_output}}
+      --test_data ${{outputs.test_data}}
+
+  eval_job:
+    type: command
+    inputs:
+      test_data: ${{parent.jobs.train_job.outputs.test_data}}
+      model_folder: ${{parent.jobs.train_job.outputs.model_output}}
+    outputs:
+      model_deployment_files:
+        type: uri_folder
+        path: azureml://datastores/workspaceblobstore/paths/titanic_model_deployment_files/
+        mode: rw_mount
+    code: ../eval
+    environment:
+      conda_file: ../conda-yamls/pipeline_env.yml
+      image: mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest
+    compute: azureml:cpu-cluster
+    command: >-
+      python eval.py 
+      --test_data ${{inputs.test_data}} 
+      --model_folder ${{inputs.model_folder}}
+      --model_deployment_files $${{outputs.model_deployment_files}}

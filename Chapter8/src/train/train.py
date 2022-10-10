@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, LabelEncoder
 from sklearn.metrics import roc_auc_score,roc_curve
-
+import joblib
 import mlflow
 import mlflow.sklearn
 import shutil
@@ -24,19 +24,27 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score
 def main(args):
     # enable auto logging
     current_run = mlflow.start_run()
-    #mlflow.sklearn.autolog()
+    mlflow.sklearn.autolog()
 
     # read in data
-    df = pd.read_csv(args.titanic_csv)
-    model, X_test = model_train('Survived', df, args.randomstate)
+    print('about to read file:' + args.prep_data)
+    df = pd.read_csv(args.prep_data)
+    #model, X_test = model_train('Survived', df, args.randomstate)
+    model, X_test, y_test = model_train('Survived', df, 0)
     
-    model_file = os.path.join('outputs', 'titanic_model.pkl')
+    model_file = os.path.join(args.model_output, 'titanic_model.pkl')
     joblib.dump(value=model, filename=model_file)
     
-    shutil.copy('./outputs/titanic_model.pkl', os.path.join(args.model_output, "titanic_model.pkl"))
+    os.makedirs("outputs", exist_ok=True)
+    y_test.to_csv('outputs/Y_test.csv', index = False)
+    X_test.to_csv( 'outputs/X_test.csv', index = False)
+    shutil.copytree('./outputs/', args.test_data, dirs_exist_ok=True)
+    #maybe do mlflow logmodel
+    mlflow.sklearn.log_model(model, "championmodel")
+
     
+
     
-    X_test.to_csv(args.test_data)
 
 def model_train(LABEL, df, randomstate):
     print('df.columns = ')
@@ -57,7 +65,7 @@ def model_train(LABEL, df, randomstate):
 
     print(X_raw.columns)
      # Train test split
-    X_train, X_test, y_train, y_test = train_test_split(X_raw, y_raw, test_size=0.2, random_state=randomstate)
+    X_train, X_test, y_train, y_test = train_test_split(X_raw, y_raw, test_size=0.2, random_state=args.randomstate)
     
     #use Logistic Regression estimator from scikit learn
     lg = LogisticRegression(penalty='l2', C=1.0, solver='liblinear')
@@ -84,9 +92,9 @@ def model_train(LABEL, df, randomstate):
     MlflowClient().log_metric(run.info.run_id, "metric", 0.22)
 
     
-    return model, X_test
+    return model, X_test, y_test
 
-    mlflow.end_run()
+    #mlflow.end_run()
 
 
 def buildpreprocessorpipeline(X_raw):
@@ -115,14 +123,20 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     # add arguments
-    parser.add_argument("---training_data", type=str)
+    parser.add_argument("--prep_data", default="data", type=str, help="Path to prepped data, default to local folder")
+    parser.add_argument("--input_file_name", type=str, default="titanic.csv")
     parser.add_argument("---randomstate", type=int, default=42)
-    parser.add_argument("--test_data", type=str,)
+#     
     parser.add_argument("--model_output", type=str, help="Path of output model")
+    parser.add_argument("--test_data", type=str,)
 
     # parse args
     args = parser.parse_args()
-    print(args)
+    print(args.prep_data)
+    print(args.input_file_name)
+    print(args.randomstate)
+    print(args.model_output)
+    print(args.test_data)
     # return args
     return args
 
