@@ -92,7 +92,7 @@ stages:
           workingDirectory: '$(Build.SourcesDirectory)'
           inlineScript: |
             echo $initalmodelversion
-            run_id=$(az ml job create --file Chapter8/src/pipeline/train_and_eval_pipeline.yml --stream --query name -o tsv)
+            run_id=$(az ml job create --file Chapter8/src/aml_train_and_eval_pipeline.yml --stream --query name -o tsv)
             echo run_id
         displayName: 'Training Pipeline'
             
