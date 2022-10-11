@@ -132,7 +132,7 @@ stages:
             
 - stage: 'DeployModel'
   dependsOn: RunPipline
-  condition: eq(dependencies.RunPipline.outputs['TrainingPipeline.setversion.modelversion'], dependencies.RunPipline.outputs['TrainingPipeline.setversion.modelversion'])
+  condition: ne(dependencies.RunPipline.outputs['TrainingPipeline.setversion.modelversion'], dependencies.RunPipline.outputs['TrainingPipeline.setversion.modelversion'])
   jobs:
   - job: "DeployModel"
     steps:
@@ -158,6 +158,6 @@ stages:
             az version
             az configure --defaults group=$(resourceGroup) workspace=$(wsName) location=$(location)
             az ml model list -w aml-workspace -g aml-workspace-rg  -n mmchapter8titanic --query "[0].version" -o tsv
-            echo "##vso[task.setvariable variable=modelversion;isOutput=true]$(az ml model list -w aml-workspace -g aml-workspace-rg  -n mmchapter8titanic --query '[0].version
+
             
     
