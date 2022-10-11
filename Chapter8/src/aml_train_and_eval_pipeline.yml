@@ -4,6 +4,13 @@ type: pipeline
 display_name: Training_and_eval_pipeline
 experiment_name: Training_and_eval_pipeline
 compute: azureml:cpu-cluster
+        
+# <jobs>
+settings:
+  default_datastore: azureml:workspaceblobstore
+  default_compute: azureml:cpu-cluster
+  continue_on_step_failure: false
+  force_rerun: true
 
 jobs:
   prep_job:
@@ -54,6 +61,7 @@ jobs:
 
   eval_job:
     type: command
+    force_rerun: true
     inputs:
       test_data: ${{parent.jobs.train_job.outputs.test_data}}
       model_folder: ${{parent.jobs.train_job.outputs.model_output}}
