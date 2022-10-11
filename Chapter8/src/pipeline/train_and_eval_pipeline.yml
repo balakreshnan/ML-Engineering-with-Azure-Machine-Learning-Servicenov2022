@@ -68,7 +68,7 @@ jobs:
       image: mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest
     compute: azureml:cpu-cluster
     command: >-
-      python eval.py 
+      python eval2.py 
       --test_data ${{inputs.test_data}} 
       --model_folder ${{inputs.model_folder}}
       --model_deployment_files $${{outputs.model_deployment_files}}
