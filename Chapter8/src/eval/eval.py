@@ -97,7 +97,7 @@ def main(args):
             create_deploymentfiles('Chapter8titanicendpoint', model_name)
             
         else:
-            print('current model performs better than champion model')
+            print('current model performs better than champion model ')
     else:
         print('no current model')
         print("First time model train, registering")
