@@ -8,7 +8,7 @@ compute: azureml:cpu-cluster
 jobs:
   prep_job:
     type: command
-    code: ../prep
+    code: .
     command: >-
       python prep.py 
       --raw_data ${{inputs.raw_data}}
@@ -24,7 +24,7 @@ jobs:
         path: azureml://datastores/workspaceblobstore/paths/titanic_prep_data/titanic_prepped.csv
         mode: rw_mount
     environment:
-      conda_file: ../conda-yamls/pipeline_env.yml
+      conda_file: pipeline_conda_env.yml
       image: mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest
     description: Feature Engineering
     
@@ -41,9 +41,9 @@ jobs:
         type: uri_folder
         path: azureml://datastores/workspaceblobstore/paths/titanic_test_data/
         mode: rw_mount
-    code: ../train
+    code: .
     environment:
-      conda_file: ../conda-yamls/pipeline_env.yml
+      conda_file: pipeline_conda_env.yml
       image: mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest
     compute: azureml:cpu-cluster
     command: >-
@@ -62,13 +62,13 @@ jobs:
         type: uri_folder
         path: azureml://datastores/workspaceblobstore/paths/titanic_model_deployment_files/
         mode: rw_mount
-    code: ../eval
+    code: .
     environment:
-      conda_file: ../conda-yamls/pipeline_env.yml
+      conda_file: pipeline_conda_env.yml
       image: mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest
     compute: azureml:cpu-cluster
     command: >-
-      python eval2.py 
+      python evaluatemodel.py 
       --test_data ${{inputs.test_data}} 
       --model_folder ${{inputs.model_folder}}
       --model_deployment_files $${{outputs.model_deployment_files}}

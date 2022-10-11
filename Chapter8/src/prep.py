@@ -1,5 +1,4 @@
 
-
 import argparse
 import pandas as pd
 
@@ -11,8 +10,6 @@ args = parser.parse_args()
 print(args.raw_data)
 print(args.prep_data)
 
-#/mnt/azureml/cr/j/f91687126d3744229274c6ecbe85b820/cap/data-capability/wd/INPUT_raw_data
-
 df = pd.read_csv(args.raw_data + '/titanic.csv')
 
 df['Age'] = df.groupby(['Pclass', 'Sex'])['Age'].apply(lambda x: x.fillna(x.median()))
@@ -23,8 +20,6 @@ df['Embarked'] = df['Embarked'].fillna('S')
 df.loc[:,'GroupSize'] = 1 + df['SibSp'] + df['Parch']
 
 LABEL = 'Survived'
-columns_to_keep = ['Pclass', 'Sex','Age', 'Fare', 'Embared', 'Deck', 'GroupSize']
-columns_to_drop = ['Name','SibSp', 'Parch', 'Survived']
 df_train = df
 df = df_train.drop(['Name','SibSp', 'Parch', 'PassengerId'], axis=1)
 
