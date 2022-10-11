@@ -4,11 +4,6 @@ type: pipeline
 display_name: Training_and_eval_pipeline
 experiment_name: Training_and_eval_pipeline
 compute: azureml:cpu-cluster
-        
-settings:
-  default_datastore: azureml:workspaceblobstore
-  continue_on_step_failure: false
-  force_rerun: true
 
 jobs:
   prep_job:
