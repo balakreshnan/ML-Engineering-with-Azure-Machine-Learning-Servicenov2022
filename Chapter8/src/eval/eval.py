@@ -21,26 +21,6 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score
 from azureml.core import Run
 from azureml.core import Model
 
-def create_deploymentfiles(endpoint_name, model_name):
-    outputfolder = "outputs"
-    os.makedirs(outputfolder, exist_ok=True)
-    
-    with open(os.path.join(outputfolder, 'create-endpoint.yaml'), "w+") as f:
-        f.write('$schema: https://azuremlschemas.azureedge.net/latest/managedOnlineEndpoint.schema.json \n')
-        f.write('name: ' + endpoint_name + '\n')
-        f.write('auth_mode: key \n')
-        
-    with open(os.path.join(outputfolder, 'model_deployment.yaml'), "w+") as f:
-        f.write('$schema: https://azuremlschemas.azureedge.net/latest/managedOnlineDeployment.schema.json \n')
-        f.write('name: ' + endpoint_name + '\n')
-        f.write('model: azureml:' + model_name + '@latest \n')
-        f.write('instance_type: Standard_DS2_v2 \n')
-        f.write('instance_count: 1  \n')
-
-
-    #shutils.copy model_deployment_files    
-    shutil.copytree('./outputs/', args.model_deployment_files, dirs_exist_ok=True)
-    
     
     
 # define functions
@@ -97,7 +77,6 @@ def main(args):
             mlflow.sklearn.log_model(champion_model,args.model_name)
             model_uri = f'runs:/{run_id}/{args.model_name}'
             mlflow.register_model(model_uri,args.model_name)
-            create_deploymentfiles('Chapter8titanicendpoint', model_name)
             
         else:
             print('current model performs better than champion model ')
@@ -109,7 +88,7 @@ def main(args):
         mlflow.sklearn.log_model(champion_model,args.model_name)
         model_uri = f'runs:/{run_id}/{args.model_name}'
         mlflow.register_model(model_uri,args.model_name)
-        create_deploymentfiles('Chapter8titanicendpoint', model_name)
+        
         print('hello')
 
 def parse_args():
