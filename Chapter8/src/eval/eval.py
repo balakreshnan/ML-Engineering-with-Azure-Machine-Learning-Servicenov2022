@@ -47,6 +47,14 @@ def create_deploymentfiles(endpoint_name, model_name):
 def main(args):
     
     model_name = args.model_name
+    
+    run = Run.get_context()
+    ws = run.experiment.workspace
+    run_id = run.id
+    print('run_id =' + run_id)
+    model_list = Model.list(ws, name=model_name, latest=True)
+    first_registration = len(model_list)==0
+    current_model = None
         
     # read in data
     print('about to read file:' + args.test_data)
@@ -69,13 +77,7 @@ def main(args):
     champion_acc = np.average(y_pred_current == y_test)
     print('champion_acc:', champion_acc)
 
-    run = Run.get_context()
-    ws = run.experiment.workspace
-    run_id = run.id
-    print('run_id =' + run_id)
-    model_list = Model.list(ws, name=model_name, latest=True)
-    first_registration = len(model_list)==0
-    current_model = None
+
     
     try:
         current_model_aml = Model(ws,args.model_name)
@@ -89,6 +91,7 @@ def main(args):
     if current_model:
         y_pred_current = current_model.predict(X_test)
         current_acc = np.average(y_pred_current == y_test)
+        print('current_acc:', current_acc)
         if champion_acc >= current_acc:
             print('better model found, registering')
             mlflow.sklearn.log_model(champion_model,args.model_name)
@@ -98,6 +101,8 @@ def main(args):
             
         else:
             print('current model performs better than champion model ')
+            print('champion_acc:', champion_acc)
+            print('current_acc:', current_acc)
     else:
         print('no current model')
         print("First time model train, registering")
