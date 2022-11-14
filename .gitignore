@@ -16,3 +16,9 @@ Chapter4/prepped_data/*
 Chapter4/src/*
 Chapter4/hyperparametertune/*
 Chapter4/titanic_prepped_mltable/*
+Lib/
+pyvenv.cfg
+share/
+Scripts/
+etc/
+Include/
