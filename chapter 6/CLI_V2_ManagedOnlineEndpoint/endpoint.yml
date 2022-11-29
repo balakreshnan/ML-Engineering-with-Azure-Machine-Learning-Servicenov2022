@@ -1,5 +1,0 @@
-$schema: https://azuremlschemas.azureedge.net/latest/managedOnlineEndpoint.schema.json
-name: titanic-managed-online-endpoint
-description: "CLI V2 titanic online endpoint for mlflow model"
-auth_mode: key
-tags : {"CLIV2": "titanic"}
